@@ -387,8 +387,9 @@ window.addEventListener('resize', initStars);
 let audioCtx = null;
 let audioUnlocked = false;
 
-function unlockAudio() {
+async function unlockAudio() {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') await audioCtx.resume();
   if (audioUnlocked) return;
   // Silent buffer trick — required by iOS Safari to activate audio hardware
   const buf = audioCtx.createBuffer(1, 1, audioCtx.sampleRate);
@@ -396,7 +397,6 @@ function unlockAudio() {
   src.buffer = buf;
   src.connect(audioCtx.destination);
   src.start(0);
-  if (audioCtx.state === 'suspended') audioCtx.resume();
   audioUnlocked = true;
 }
 
@@ -523,8 +523,8 @@ function show(id) {
 }
 
 // ── SCREEN 1 ───────────────────────────────────────────────────────────────────────
-document.getElementById('start-btn').addEventListener('click', () => {
-  unlockAudio();
+document.getElementById('start-btn').addEventListener('click', async () => {
+  await unlockAudio();
   playTransmission();
   setTimeout(() => show('screen-scan'), 350);
 });
@@ -535,9 +535,9 @@ const scanStatus = document.getElementById('scan-status');
 const scanFill = document.getElementById('scan-fill');
 const freqDisplay = document.getElementById('freq-display');
 
-scanBtn.addEventListener('click', () => {
+scanBtn.addEventListener('click', async () => {
   if (scanning || locked) return;
-  unlockAudio();
+  await unlockAudio();
   scanning = true;
   scanBtn.disabled = true;
   playScan();
@@ -594,11 +594,11 @@ function typeReveal(el, text, onDone) {
   }, 36);
 }
 
-function decodeFrag(idx) {
+async function decodeFrag(idx) {
   const box = document.getElementById('frag-' + idx);
   const txt = document.getElementById('ft-' + idx);
   if (!box || box.classList.contains('locked') || box.classList.contains('decoded')) return;
-  unlockAudio();
+  await unlockAudio();
   box.classList.add('decoded');
   playDecode();
   typeReveal(txt, fragData[idx], () => {
@@ -616,8 +616,8 @@ function decodeFrag(idx) {
 );
 
 // ── SCREEN 4 ───────────────────────────────────────────────────────────────────────
-document.getElementById('rsvp-btn').addEventListener('click', () => {
-  unlockAudio();
+document.getElementById('rsvp-btn').addEventListener('click', async () => {
+  await unlockAudio();
   beep(880, 0.1, 'square', 0.2);
   beep(1100, 0.3, 'square', 0.25, 0.1);
   alert('Vote na enquete do WhatsApp para confirmar! 🚀');
