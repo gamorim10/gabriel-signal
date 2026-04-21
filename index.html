@@ -511,11 +511,9 @@ function show(id) {
 }
 
 // ── SCREEN 1 ───────────────────────────────────────────────────────────────────────
-setTimeout(playTransmission, 600);
-
 document.getElementById('start-btn').addEventListener('click', () => {
-  beep(660, 0.08, 'square', 0.2);
-  setTimeout(() => show('screen-scan'), 250);
+  playTransmission();           // first user gesture — AudioContext unlocks here
+  setTimeout(() => show('screen-scan'), 350);
 });
 
 // ── SCREEN 2 ───────────────────────────────────────────────────────────────────────
